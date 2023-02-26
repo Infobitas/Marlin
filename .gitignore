@@ -170,3 +170,5 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
+.vscode/extensions.json
+update/fmw_tronxy.bin
