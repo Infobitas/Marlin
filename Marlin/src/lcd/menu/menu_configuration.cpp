@@ -292,6 +292,19 @@ void menu_advanced_settings();
 
 #endif
 
+#if ENABLED(HOTEND_FAN_MENU)
+
+  #include "../../feature/hotendfan.h"
+
+  void menu_hotend_fan() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM_FAST(percent, MSG_HOTEND_FAN_SPEED, &hotendFan.settings.active_speed, HOTENDFAN_SPEED_MIN, 255);        
+    END_MENU();
+  }
+
+#endif
+
 #if ENABLED(FWRETRACT)
 
   #include "../../feature/fwretract.h"
@@ -504,6 +517,10 @@ void menu_configuration() {
   //
   #if ENABLED(CONTROLLER_FAN_MENU)
     SUBMENU(MSG_CONTROLLER_FAN, menu_controller_fan);
+  #endif
+
+  #if ENABLED(HOTEND_FAN_MENU)
+    SUBMENU(MSG_HOTEND_FAN, menu_hotend_fan);
   #endif
 
   if (!busy) {

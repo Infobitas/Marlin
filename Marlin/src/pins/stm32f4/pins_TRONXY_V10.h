@@ -153,7 +153,7 @@
 #define FAN_PIN                             PG0 //FAN0
 #define FAN1_PIN                            PB6 //FAN1
 #define THROAT_FAN                          2
-#define FAN2_PIN                            PG9 //FAN2
+#define FAN2_PIN                            PG9 //FAN2 - hotend
 #define FAN3_PIN                            PF10//FAN3
 //#define FAN_SOFT_PWM
 

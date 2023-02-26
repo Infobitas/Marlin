@@ -545,7 +545,7 @@
  */
 #define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-  //#define CONTROLLER_FAN_PIN -1             // Set a custom pin for the controller fan
+  //#define CONTROLLER_FAN_PIN -1           // Set a custom pin for the controller fan
   //#define CONTROLLER_FAN2_PIN -1          // Set a custom pin for second controller fan
   //#define CONTROLLER_FAN_USE_Z_ONLY       // With this option only the Z axis is considered
   //#define CONTROLLER_FAN_IGNORE_Z         // Ignore Z stepper. Useful when stepper timeout is disabled.
@@ -559,8 +559,20 @@
 
   #define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    #define CONTROLLER_FAN_MENU             // Enable the Controller Fan submenu
+    #define CONTROLLER_FAN_MENU           // Enable the Controller Fan submenu
   #endif
+#endif
+
+
+#define USE_HOTEND_FAN
+  
+#if ENABLED(USE_HOTEND_FAN)
+  #define HOTEND_FAN_PIN FAN2_PIN     // Set a custom pin for the hotend fan
+  #define HOTENDFAN_SPEED_MIN       0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
+  #define HOTEND_FAN_EDITABLE         // Enable M710 configurable settings
+  #if ENABLED(HOTEND_FAN_EDITABLE)
+    #define HOTEND_FAN_MENU           // Enable the Controller Fan submenu
+  #endif  
 #endif
 
 /**
@@ -4322,7 +4334,7 @@
   #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
 
   // Add an LCD menu for MMU2
-  //#define MMU2_MENUS
+  #define MMU2_MENUS
   #if EITHER(MMU2_MENUS, HAS_PRUSA_MMU2S)
     // Settings for filament load / unload from the LCD menu.
     // This is for Průša MK3-style extruders. Customize for your hardware.
