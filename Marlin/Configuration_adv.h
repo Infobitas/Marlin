@@ -564,17 +564,6 @@
 #endif
 
 
-#define USE_HOTEND_FAN
-  
-#if ENABLED(USE_HOTEND_FAN)
-  #define HOTEND_FAN_PIN FAN2_PIN     // Set a custom pin for the hotend fan
-  #define HOTENDFAN_SPEED_MIN       0 // (0-255) Minimum speed. (If set below this value the fan is turned off.)
-  #define HOTEND_FAN_EDITABLE         // Enable M710 configurable settings
-  #if ENABLED(HOTEND_FAN_EDITABLE)
-    #define HOTEND_FAN_MENU           // Enable the Controller Fan submenu
-  #endif  
-#endif
-
 /**
  * Fan Kickstart
  * When part cooling or controller fans first start, run at a speed that
@@ -671,7 +660,7 @@
 #define COOLER_AUTO_FAN_PIN -1
 
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 75
-#define EXTRUDER_AUTO_FAN_SPEED 220       // 255 == full speed
+#define EXTRUDER_AUTO_FAN_SPEED 225       // 255 == full speed
 #define CHAMBER_AUTO_FAN_TEMPERATURE 30
 #define CHAMBER_AUTO_FAN_SPEED 255
 #define COOLER_AUTO_FAN_TEMPERATURE 18
