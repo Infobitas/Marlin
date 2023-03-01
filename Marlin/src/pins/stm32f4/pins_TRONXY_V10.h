@@ -207,6 +207,8 @@
   #define TOUCH_MOSI_PIN                    PB15   // SPI1_MOSI
   #define TFT_RESET_PIN                     PB12
   #define TFT_BACKLIGHT_PIN                 PG8
+  //for Marlin UI support
+  #define LCD_BACKLIGHT_PIN                 PG8
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
