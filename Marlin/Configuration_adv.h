@@ -849,7 +849,7 @@
 #ifdef Z2_DRIVER_TYPE
   //#define INVERT_Z2_VS_Z_DIR        // Z2 direction signal is the opposite of Z
 
-  #define Z_MULTI_ENDSTOPS          // Other Z axes have their own endstops
+  //#define Z_MULTI_ENDSTOPS          // Other Z axes have their own endstops
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #if Z_HOME_DIR > 0
     #define Z2_USE_ENDSTOP          _ZMIN_
@@ -1121,7 +1121,9 @@
 #define STEP_STATE_X HIGH
 #define STEP_STATE_Y HIGH
 #define STEP_STATE_Z HIGH
+
 #define STEP_STATE_E HIGH
+
 
 /**
  * Idle Stepper Shutdown
@@ -1129,15 +1131,20 @@
  * The Deactive Time can be overridden with M18 and M84. Set to 0 for No Timeout.
  */
 #define DEFAULT_STEPPER_DEACTIVE_TIME 120
-#define DISABLE_INACTIVE_X true
-#define DISABLE_INACTIVE_Y true
-#define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
+#define DISABLE_INACTIVE_X
+#define DISABLE_INACTIVE_Y
+#define DISABLE_INACTIVE_Z  // Disable if the nozzle could fall onto your printed part!
+
 #define DISABLE_INACTIVE_EXTRUDER true
+
 
 // Default Minimum Feedrates for printing and travel moves
 #define DEFAULT_MINIMUMFEEDRATE             0.0     // (mm/s) Minimum feedrate. Set with M205 S.
 #define DEFAULT_MINTRAVELFEEDRATE           0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
-
+#if HAS_ROTATIONAL_AXES
+  #define DEFAULT_ANGULAR_MINIMUMFEEDRATE   0.0     // (°/s) Minimum feedrate for rotational-only moves. Set with M205 P.
+  #define DEFAULT_ANGULAR_MINTRAVELFEEDRATE 0.0     // (°/s) Minimum travel feedrate for rotational-only moves. Set with M205 Q.
+#endif
 
 // Minimum time that a segment needs to take as the buffer gets emptied
 #define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
@@ -1563,7 +1570,7 @@
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
   //#define NO_SD_AUTOSTART                 // Remove auto#.g file support completely to save some Flash, SRAM
-  #define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
+  //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
   //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
 
@@ -1648,8 +1655,8 @@
   // LCD's font must contain the characters. Check your selected LCD language.
   //#define UTF_FILENAME_SUPPORT
 
-  #define LONG_FILENAME_HOST_SUPPORT      // Get the long filename of a file/folder with 'M33 <dosname>' and list long filenames with 'M20 L'
-  #define LONG_FILENAME_WRITE_SUPPORT     // Create / delete files with long filenames via M28, M30, and Binary Transfer Protocol
+  //#define LONG_FILENAME_HOST_SUPPORT      // Get the long filename of a file/folder with 'M33 <dosname>' and list long filenames with 'M20 L'
+  //#define LONG_FILENAME_WRITE_SUPPORT     // Create / delete files with long filenames via M28, M30, and Binary Transfer Protocol
   //#define M20_TIMESTAMP_SUPPORT         // Include timestamps by adding the 'T' flag to M20 commands
 
   //#define SCROLL_LONG_FILENAMES         // Scroll long filenames in the SD card menu
@@ -1702,7 +1709,7 @@
     //#define USE_UHS2_USB
     //#define USE_UHS3_USB
 
-    //#define DISABLE_DUE_SD_MMC // Disable USB Host access to USB Drive to prevent hangs on block access for DUE platform
+    #define DISABLE_DUE_SD_MMC // Disable USB Host access to USB Drive to prevent hangs on block access for DUE platform
 
     /**
      * Native USB Host supported by some boards (USB OTG)

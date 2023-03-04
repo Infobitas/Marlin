@@ -1259,7 +1259,10 @@
 #define DEFAULT_ACCELERATION                  500  // X, Y, Z ... and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION          800  // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION           1000  // X, Y, Z ... acceleration for travel (non printing) moves
-
+#if ENABLED(AXIS4_ROTATES)
+  #define DEFAULT_ANGULAR_ACCELERATION        1000  // I, J, K acceleration for rotational-only printing moves
+  #define DEFAULT_ANGULAR_TRAVEL_ACCELERATION 1000  // I, J, K acceleration for rotational-only travel (non printing) moves
+#endif
 
 /**
  * Default Jerk limits (mm/s)
@@ -1919,7 +1922,7 @@
  * leveling immediately after G28.
  */
 #if ENABLED(FIX_MOUNTED_PROBE)
-#define RESTORE_LEVELING_AFTER_G28
+	#define RESTORE_LEVELING_AFTER_G28
 #endif
 //#define ENABLE_LEVELING_AFTER_G28
 
@@ -2186,7 +2189,7 @@
   #define XY_SIDE_AD 200
 
   // Or, set the XY skew factor directly:
-  #define XY_SKEW_FACTOR 0.0
+  //#define XY_SKEW_FACTOR 0.0
 
   //#define SKEW_CORRECTION_FOR_Z
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
@@ -2397,7 +2400,7 @@
  *   M76 - Pause the print job timer
  *   M77 - Stop the print job timer
  */
-//#define PRINTJOB_TIMER_AUTOSTART
+#define PRINTJOB_TIMER_AUTOSTART
 
 // @section stats
 
@@ -3022,11 +3025,11 @@
  *  - Boot the display and wait for the update to complete.
  */
 //#define DGUS_LCD_UI ORIGIN
-/*
+
 #if DGUS_UI_IS(MKS)
   #define USE_MKS_GREEN_UI
 #endif
-*/
+
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
 //
