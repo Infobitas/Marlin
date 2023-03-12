@@ -185,15 +185,21 @@
 
 
 // SPI Flash
-// #define SPI_FLASH_SIZE                  0x200000  // 2MB
-// #define HAS_SPI_FLASH                          1
+//#define SPI_FLASH
+#if ENABLED(SPI_FLASH)
+ #define SPI_FLASH_SIZE                  0x200000  // 2MB
+ #define HAS_SPI_FLASH                          1
+ #define SPI_FLASH_CS_PIN                  PG15
+ #define SPI_FLASH_MOSI_PIN                PB5
+ #define SPI_FLASH_MISO_PIN                PB4
+ #define SPI_FLASH_SCK_PIN                 PB3
+#endif
 
 // SPI 2
 #define W25QXX_CS_PIN                       PG15
 #define W25QXX_MOSI_PIN                     PB5
 #define W25QXX_MISO_PIN                     PB4
 #define W25QXX_SCK_PIN                      PB3
-
 
 
 //
