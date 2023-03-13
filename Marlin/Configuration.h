@@ -164,53 +164,10 @@
 #define Y_DRIVER_TYPE  TMC2209_STANDALONE
 #define Z_DRIVER_TYPE  TMC2209_STANDALONE
 //#define Z2_DRIVER_TYPE TMC2209_STANDALONE
-
 #define E0_DRIVER_TYPE TMC2209_STANDALONE
 //#define E1_DRIVER_TYPE TMC2209_STANDALONE
 
 
-
-/**
- * Additional Axis Settings
- *
- * Define AXISn_ROTATES for all axes that rotate or pivot.
- * Rotational axis coordinates are expressed in degrees.
- *
- * AXISn_NAME defines the letter used to refer to the axis in (most) G-code commands.
- * By convention the names and roles are typically:
- *   'A' : Rotational axis parallel to X
- *   'B' : Rotational axis parallel to Y
- *   'C' : Rotational axis parallel to Z
- *   'U' : Secondary linear axis parallel to X
- *   'V' : Secondary linear axis parallel to Y
- *   'W' : Secondary linear axis parallel to Z
- *
- * Regardless of these settings the axes are internally named I, J, K, U, V, W.
- */
-#ifdef I_DRIVER_TYPE
-  #define AXIS4_NAME 'A' // :['A', 'B', 'C', 'U', 'V', 'W']
-  #define AXIS4_ROTATES
-#endif
-#ifdef J_DRIVER_TYPE
-  #define AXIS5_NAME 'B' // :['B', 'C', 'U', 'V', 'W']
-  #define AXIS5_ROTATES
-#endif
-#ifdef K_DRIVER_TYPE
-  #define AXIS6_NAME 'C' // :['C', 'U', 'V', 'W']
-  #define AXIS6_ROTATES
-#endif
-#ifdef U_DRIVER_TYPE
-  #define AXIS7_NAME 'U' // :['U', 'V', 'W']
-  //#define AXIS7_ROTATES
-#endif
-#ifdef V_DRIVER_TYPE
-  #define AXIS8_NAME 'V' // :['V', 'W']
-  //#define AXIS8_ROTATES
-#endif
-#ifdef W_DRIVER_TYPE
-  #define AXIS9_NAME 'W' // :['W']
-  //#define AXIS9_ROTATES
-#endif
 
 // @section extruder
 
@@ -1225,12 +1182,6 @@
   #define DEFAULT_XJERK 8.0
   #define DEFAULT_YJERK 8.0
   #define DEFAULT_ZJERK  0.4
-  //#define DEFAULT_IJERK  0.3
-  //#define DEFAULT_JJERK  0.3
-  //#define DEFAULT_KJERK  0.3
-  //#define DEFAULT_UJERK  0.3
-  //#define DEFAULT_VJERK  0.3
-  //#define DEFAULT_WJERK  0.3
 
   //#define TRAVEL_EXTRA_XYJERK 0.0     // Additional jerk allowance for all travel moves
 
@@ -1498,7 +1449,7 @@
 #define XY_PROBE_FEEDRATE (133*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST (5*60)
+#define Z_PROBE_FEEDRATE_FAST (4*60)
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
@@ -1548,7 +1499,7 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2
+#define MULTIPLE_PROBING 2
 //#define EXTRA_PROBING    1
 
 /**
@@ -1708,12 +1659,6 @@
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
   #define MIN_SOFTWARE_ENDSTOP_Z
-  #define MIN_SOFTWARE_ENDSTOP_I
-  #define MIN_SOFTWARE_ENDSTOP_J
-  #define MIN_SOFTWARE_ENDSTOP_K
-  #define MIN_SOFTWARE_ENDSTOP_U
-  #define MIN_SOFTWARE_ENDSTOP_V
-  #define MIN_SOFTWARE_ENDSTOP_W
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1722,12 +1667,6 @@
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
   #define MAX_SOFTWARE_ENDSTOP_Z
-  #define MAX_SOFTWARE_ENDSTOP_I
-  #define MAX_SOFTWARE_ENDSTOP_J
-  #define MAX_SOFTWARE_ENDSTOP_K
-  #define MAX_SOFTWARE_ENDSTOP_U
-  #define MAX_SOFTWARE_ENDSTOP_V
-  #define MAX_SOFTWARE_ENDSTOP_W
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
@@ -1767,30 +1706,6 @@
   //#define FIL_RUNOUT2_STATE LOW
   //#define FIL_RUNOUT2_PULLUP
   //#define FIL_RUNOUT2_PULLDOWN
-
-  //#define FIL_RUNOUT3_STATE LOW
-  //#define FIL_RUNOUT3_PULLUP
-  //#define FIL_RUNOUT3_PULLDOWN
-
-  //#define FIL_RUNOUT4_STATE LOW
-  //#define FIL_RUNOUT4_PULLUP
-  //#define FIL_RUNOUT4_PULLDOWN
-
-  //#define FIL_RUNOUT5_STATE LOW
-  //#define FIL_RUNOUT5_PULLUP
-  //#define FIL_RUNOUT5_PULLDOWN
-
-  //#define FIL_RUNOUT6_STATE LOW
-  //#define FIL_RUNOUT6_PULLUP
-  //#define FIL_RUNOUT6_PULLDOWN
-
-  //#define FIL_RUNOUT7_STATE LOW
-  //#define FIL_RUNOUT7_PULLUP
-  //#define FIL_RUNOUT7_PULLDOWN
-
-  //#define FIL_RUNOUT8_STATE LOW
-  //#define FIL_RUNOUT8_PULLUP
-  //#define FIL_RUNOUT8_PULLDOWN
 
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
@@ -1864,7 +1779,7 @@
  * leveling immediately after G28.
  */
 #if ENABLED(FIX_MOUNTED_PROBE)
-#define RESTORE_LEVELING_AFTER_G28
+  #define RESTORE_LEVELING_AFTER_G28
 #endif
 //#define ENABLE_LEVELING_AFTER_G28
 
@@ -2087,7 +2002,7 @@
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
-#define HOMING_FEEDRATE_MM_M { (60*60), (60*60), (12*60) }
+#define HOMING_FEEDRATE_MM_M { (60*60), (60*60), (8*60) }
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
