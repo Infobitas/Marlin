@@ -190,21 +190,6 @@
 
 // @section multi-material
 
-/**
- * Multi-Material Unit
- * Set to one of these predefined models:
- *
- *   PRUSA_MMU1           : Průša MMU1 (The "multiplexer" version)
- *   PRUSA_MMU2           : Průša MMU2
- *   PRUSA_MMU2S          : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
- *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
- *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
- *
- * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
- * See additional options in Configuration_adv.h.
- * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
- */
-//#define MMU_MODEL PRUSA_MMU2
 
 // A dual extruder that uses a single stepper motor
 //#define SWITCHING_EXTRUDER
@@ -553,12 +538,6 @@
 // because it probably indicates a broken thermistor wire.
 #define HEATER_0_MINTEMP   5
 #define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
 #define BED_MINTEMP        5
 #define CHAMBER_MINTEMP    5
 
@@ -567,12 +546,6 @@
 // (Use MINTEMP for thermistor short/failure protection.)
 #define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      100
 #define CHAMBER_MAXTEMP  60
 
@@ -2121,8 +2094,8 @@
 // Preheat Constants - Up to 10 are supported without changes
 //
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 190
-#define PREHEAT_1_TEMP_BED     50
+#define PREHEAT_1_TEMP_HOTEND 205
+#define PREHEAT_1_TEMP_BED     55
 #define PREHEAT_1_TEMP_CHAMBER 35
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
