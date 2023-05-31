@@ -380,7 +380,6 @@ namespace Language_en {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor res *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient h *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Amb. h fan *");
-  LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -448,9 +447,10 @@ namespace Language_en {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
-  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Error");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Error");
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Error");
+  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Size");
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: EEPROM Version");
+  LSTR MSG_ERR_EEPROM_CORRUPT             = _UxGT("Err: EEPROM Corrupt");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Settings Stored");
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Printer");
@@ -555,11 +555,11 @@ namespace Language_en {
   LSTR MSG_TOOL_MIGRATION_END             = _UxGT("Last Extruder");
   LSTR MSG_TOOL_MIGRATION_SWAP            = _UxGT("Migrate to *");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Change Filament");
-  LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Change Filament *");
+  LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Change * Filament");
   LSTR MSG_FILAMENTLOAD                   = _UxGT("Load Filament");
-  LSTR MSG_FILAMENTLOAD_E                 = _UxGT("Load *");
+  LSTR MSG_FILAMENTLOAD_E                 = _UxGT("Load * Filament");
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Unload Filament");
-  LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload *");
+  LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload * Filament");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Unload All");
   #if ENABLED(MULTI_VOLUME)
     LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach SD Card");
@@ -632,6 +632,7 @@ namespace Language_en {
   LSTR MSG_CHAMBER_COOLING                = _UxGT("Chamber Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Calibration");
+  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Delta Calibration in progress");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Calibrate X");
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Calibrate Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Calibrate Z");
@@ -742,7 +743,8 @@ namespace Language_en {
   LSTR MSG_MMU2_FILAMENT_N                = _UxGT("Filament ~");
   LSTR MSG_MMU2_RESET                     = _UxGT("Reset MMU");
   LSTR MSG_MMU2_RESETTING                 = _UxGT("MMU Resetting...");
-  LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Remove, click");
+  LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("MMU2 Eject Recover");
+  LSTR MSG_MMU2_REMOVE_AND_CLICK          = _UxGT("Remove and click...");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
   LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component =");
@@ -859,11 +861,12 @@ namespace Language_en {
 
   LSTR MSG_HOST_SHUTDOWN                  = _UxGT("Host Shutdown");
 
-  // These strings can be the same in all languages
-  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_SHORT_DAY                      = _UxGT("d"); // One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
   LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
+
+  // These strings can be the same in all languages
+  LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_PID_P                          = _UxGT("PID-P");
   LSTR MSG_PID_P_E                        = _UxGT("PID-P *");
   LSTR MSG_PID_I                          = _UxGT("PID-I");
@@ -876,11 +879,3 @@ namespace Language_en {
   LSTR MSG_PID_F_E                        = _UxGT("PID-F *");
   LSTR MSG_BACKLASH_N                     = _UxGT("@");
 }
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif

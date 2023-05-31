@@ -264,7 +264,6 @@ namespace Language_ro {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
-  LSTR MSG_SELECT                         = _UxGT("Select");
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -318,9 +317,9 @@ namespace Language_ro {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
-  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Error");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Error");
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Error");
+  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: Mărimea EEPROM");
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versiunea EEPROM");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Settings Stored");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Media Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Imprimanta");
@@ -607,11 +606,3 @@ namespace Language_ro {
   LSTR MSG_REHEAT                         = _UxGT("Reincalzire");
   LSTR MSG_REHEATING                      = _UxGT("Reincalzire...");
 }
-
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif

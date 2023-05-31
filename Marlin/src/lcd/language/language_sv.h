@@ -294,7 +294,6 @@ namespace Language_sv {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autojustera misslyckad! Dålig extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autojustera misslyckad! Temperatur för hög.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autojustera misslyckad! Tidsgräns.");
-  LSTR MSG_SELECT                         = _UxGT("Välj");
   LSTR MSG_SELECT_E                       = _UxGT("Välj *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Ryck");
@@ -349,7 +348,7 @@ namespace Language_sv {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Återställ Standard");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initiera EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Fel");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Fel");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM Storlek Fel");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Fel");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Inställningar Lagrad");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Media Uppdatera");

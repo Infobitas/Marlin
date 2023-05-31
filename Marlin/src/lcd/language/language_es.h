@@ -265,7 +265,6 @@ namespace Language_es {
   LSTR MSG_LCD_OFF                        = _UxGT("Apg");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Auto-ajuste");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Auto-ajuste *");
-  LSTR MSG_SELECT                         = _UxGT("Seleccionar");
   LSTR MSG_SELECT_E                       = _UxGT("Seleccionar *");
   LSTR MSG_ACC                            = _UxGT("Aceleración");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -316,7 +315,7 @@ namespace Language_es {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Rest. fábrica");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Inicializar EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Err: Índice EEPROM");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Tamaño");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: Versión EEPROM");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Actualizar SD/FD");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Resetear Impresora");
