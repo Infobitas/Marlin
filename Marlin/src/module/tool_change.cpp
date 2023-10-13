@@ -24,7 +24,6 @@
 
 #include "tool_change.h"
 
-#include "probe.h"
 #include "motion.h"
 #include "planner.h"
 #include "temperature.h"
@@ -92,6 +91,10 @@
   #include "../feature/pause.h"
 #endif
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
   #if TOOLCHANGE_FS_WIPE_RETRACT <= 0
     #undef TOOLCHANGE_FS_WIPE_RETRACT
@@ -124,9 +127,8 @@
 
     inline void _move_nozzle_servo(const uint8_t e, const uint8_t angle_index) {
       constexpr int8_t  sns_index[2] = { SWITCHING_NOZZLE_SERVO_NR, SWITCHING_NOZZLE_E1_SERVO_NR };
-      constexpr int16_t sns_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
       planner.synchronize();
-      servo[sns_index[e]].move(sns_angles[angle_index]);
+      servo[sns_index[e]].move(servo_angles[sns_index[e]][angle_index]);
       safe_delay(SWITCHING_NOZZLE_SERVO_DWELL);
     }
 
@@ -250,7 +252,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 #elif ENABLED(PARKING_EXTRUDER)
 
   void pe_solenoid_init() {
-    LOOP_LE_N(n, 1) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
+    for (uint8_t n = 0; n <= 1; ++n) pe_solenoid_set_pin_state(n, !PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE);
   }
 
   void pe_solenoid_set_pin_state(const uint8_t extruder_num, const uint8_t state) {
@@ -938,19 +940,20 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    *  sync_plan_position_e();
    */
   void extruder_cutting_recover(const_float_t e) {
-    if (!too_cold(active_extruder)) {
-      const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
-      FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
-      unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
-      planner.synchronize();
-      FS_DEBUG("Set position to: ", e);
-      current_position.e = e;
-      sync_plan_position_e(); // Resume new E Position
-    }
+    if (too_cold(active_extruder)) return;
+
+    const float dist = toolchange_settings.extra_resume + toolchange_settings.wipe_retract;
+    FS_DEBUG("Performing Cutting Recover | Distance: ", dist, " | Speed: ", MMM_TO_MMS(toolchange_settings.unretract_speed), "mm/s");
+    unscaled_e_move(dist, MMM_TO_MMS(toolchange_settings.unretract_speed));
+
+    FS_DEBUG("Set E position: ", e);
+    current_position.e = e;
+    sync_plan_position_e(); // Resume new E Position
   }
 
   /**
    * Prime the currently selected extruder (Filament loading only)
+   * Leave the E position unchanged so subsequent extrusion works properly.
    *
    * If too_cold(toolID) returns TRUE -> returns without moving extruder.
    * Extruders filament = swap_length + extra prime, then performs cutting retraction if enabled.
@@ -963,6 +966,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
 
     feedRate_t fr_mm_s = MMM_TO_MMS(toolchange_settings.unretract_speed); // Set default speed for unretract
+
+    const float resume_current_e = current_position.e;
 
     #if ENABLED(TOOLCHANGE_FS_SLOW_FIRST_PRIME)
       /**
@@ -1007,6 +1012,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       FS_DEBUG("Performing Cutting Retraction | Distance: ", -toolchange_settings.wipe_retract, " | Speed: ", MMM_TO_MMS(toolchange_settings.retract_speed), "mm/s");
       unscaled_e_move(-toolchange_settings.wipe_retract, MMM_TO_MMS(toolchange_settings.retract_speed));
     #endif
+
+    // Leave E unchanged when priming
+    current_position.e = resume_current_e;
+    sync_plan_position_e();
 
     // Cool down with fan
     filament_swap_cooling();
@@ -1059,17 +1068,19 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         }
       #endif
 
+      // Prime without changing E
       extruder_prime();
 
       // Move back
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
           #if ENABLED(TOOLCHANGE_NO_RETURN)
-            const float temp = destination.z;
-            destination = current_position;
-            destination.z = temp;
+            destination.x = current_position.x;
+            destination.y = current_position.y;
           #endif
-          prepare_internal_move_to_destination(TERN(TOOLCHANGE_NO_RETURN, planner.settings.max_feedrate_mm_s[Z_AXIS], MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE)));
+          do_blocking_move_to_xy(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          planner.synchronize();
         }
       #endif
 
@@ -1165,7 +1176,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, extruder_parked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
-      #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
+      #if ALL(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
         // Store and stop fan. Restored on any exit.
         REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
       #endif
@@ -1277,7 +1288,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           fast_line_to_current(Z_AXIS);
         }
         move_nozzle_servo(new_tool);
-      #elif EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #elif ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         if (!no_move) {
           current_position.z = _MIN(current_position.z + toolchange_settings.z_raise, _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS));
           fast_line_to_current(Z_AXIS);
@@ -1308,7 +1319,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       const bool should_move = safe_to_move && !no_move && IsRunning();
       if (should_move) {
 
-        #if EITHER(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
+        #if ANY(SINGLENOZZLE_STANDBY_TEMP, SINGLENOZZLE_STANDBY_FAN)
           thermalManager.singlenozzle_change(old_tool, new_tool);
         #endif
 
@@ -1414,19 +1425,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
         // G0/G1/G2/G3/G5 moves are relative to the active tool.
         // Shift the workspace to make custom moves relative to T0.
-        xyz_pos_t old_position_shift;
+        xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
-          old_position_shift = position_shift;
+          old_workspace_offset = workspace_offset;
           const xyz_pos_t &he = hotend_offset[new_tool];
-          #if ENABLED(TC_GCODE_USE_GLOBAL_X)
-            position_shift.x -= he.x; update_workspace_offset(X_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Y)
-            position_shift.y -= he.y; update_workspace_offset(Y_AXIS);
-          #endif
-          #if ENABLED(TC_GCODE_USE_GLOBAL_Z)
-            position_shift.z -= he.z; update_workspace_offset(Z_AXIS);
-          #endif
+          TERN_(TC_GCODE_USE_GLOBAL_X, workspace_offset.x -= he.x);
+          TERN_(TC_GCODE_USE_GLOBAL_Y, workspace_offset.y -= he.y);
+          TERN_(TC_GCODE_USE_GLOBAL_Z, workspace_offset.z -= he.z);
         }
       #endif
 
@@ -1459,17 +1464,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
 
       #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
-        if (new_tool > 0) {
-          position_shift = old_position_shift;
-          TERN_(TC_GCODE_USE_GLOBAL_X, update_workspace_offset(X_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Y, update_workspace_offset(Y_AXIS));
-          TERN_(TC_GCODE_USE_GLOBAL_Z, update_workspace_offset(Z_AXIS));
-        }
+        if (new_tool > 0) workspace_offset = old_workspace_offset;
       #endif
 
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z axis after running EVENT_GCODE_TOOLCHANGE
       // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
-      #if EITHER(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
+      #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
           TERN_(DUAL_X_CARRIAGE, diff.x = 0);

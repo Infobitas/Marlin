@@ -259,6 +259,7 @@
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M592 - Get or set nonlinear extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -300,6 +301,7 @@
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
  * M919 - Get or Set motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc. If no parameters are given, report. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
@@ -335,7 +337,7 @@
   #include "../feature/encoder_i2c.h"
 #endif
 
-#if EITHER(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
+#if ANY(IS_SCARA, POLAR) || defined(G0_FEEDRATE)
   #define HAS_FAST_MOVES 1
 #endif
 
@@ -344,14 +346,20 @@ enum AxisRelative : uint8_t {
   #if HAS_EXTRUDERS
     , E_MODE_ABS, E_MODE_REL
   #endif
+  , NUM_REL_MODES
 };
+typedef bits_t(NUM_REL_MODES) relative_t;
 
 extern const char G28_STR[];
 
 class GcodeSuite {
 public:
 
-  static axis_bits_t axis_relative;
+  static relative_t axis_relative;
+
+  GcodeSuite() { // Relative motion mode for each logical axis
+    axis_relative = AxisBits(AXIS_RELATIVE_MODES).bits;
+  }
 
   static bool axis_is_relative(const AxisEnum a) {
     #if HAS_EXTRUDERS
@@ -435,7 +443,7 @@ public:
     process_subcommands_now(keep_leveling ? FPSTR(G28_STR) : TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
   }
 
-  #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
+  #if ANY(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
     static bool autoreport_paused;
     static bool set_autoreport_paused(const bool p) {
       const bool was = autoreport_paused;
@@ -454,7 +462,7 @@ public:
      */
     enum MarlinBusyState : char {
       NOT_BUSY,           // Not in a handler
-      IN_HANDLER,         // Processing a GCode
+      IN_HANDLER,         // Processing a G-Code
       IN_PROCESS,         // Known to be blocking command input (as in G29)
       PAUSED_FOR_USER,    // Blocking pending any input
       PAUSED_FOR_INPUT    // Blocking pending text input (concept)
@@ -585,7 +593,7 @@ private:
     static void G59();
   #endif
 
-  #if BOTH(PTC_PROBE, PTC_BED)
+  #if ALL(PTC_PROBE, PTC_BED)
     static void G76();
   #endif
 
@@ -617,11 +625,11 @@ private:
     static void M7();
   #endif
 
-  #if EITHER(AIR_ASSIST, COOLANT_FLOOD)
+  #if ANY(AIR_ASSIST, COOLANT_FLOOD)
     static void M8();
   #endif
 
-  #if EITHER(AIR_ASSIST, COOLANT_CONTROL)
+  #if ANY(AIR_ASSIST, COOLANT_CONTROL)
     static void M9();
   #endif
 
@@ -665,7 +673,7 @@ private:
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       static void M33();
     #endif
-    #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
+    #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();
     #endif
   #endif
@@ -704,6 +712,13 @@ private:
   #endif
 
   static void M85();
+
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    static void M86();
+    static void M86_report(const bool forReplay=true);
+    static void M87();
+  #endif
+
   static void M92();
   static void M92_report(const bool forReplay=true, const int8_t e=-1);
 
@@ -713,7 +728,6 @@ private:
 
   #if ENABLED(BD_SENSOR)
     static void M102();
-    static void M102_report(const bool forReplay=true);
   #endif
 
   #if HAS_HOTEND
@@ -814,7 +828,7 @@ private:
     static void M154();
   #endif
 
-  #if BOTH(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
+  #if ALL(AUTO_REPORT_TEMPERATURES, HAS_TEMP_SENSOR)
     static void M155();
   #endif
 
@@ -847,7 +861,7 @@ private:
   static void M205();
   static void M205_report(const bool forReplay=true);
 
-  #if HAS_M206_COMMAND
+  #if HAS_HOME_OFFSET
     static void M206();
     static void M206_report(const bool forReplay=true);
   #endif
@@ -923,6 +937,10 @@ private:
 
   #if ENABLED(BABYSTEPPING)
     static void M290();
+    #if ENABLED(EP_BABYSTEPPING)
+      static void M293();
+      static void M294();
+    #endif
   #endif
 
   #if HAS_SOUND
@@ -982,7 +1000,7 @@ private:
     static bool M364();
   #endif
 
-  #if EITHER(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
+  #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)
     static void M380();
     static void M381();
   #endif
@@ -1026,7 +1044,7 @@ private:
     static void M425_report(const bool forReplay=true);
   #endif
 
-  #if HAS_M206_COMMAND
+  #if HAS_HOME_OFFSET
     static void M428();
   #endif
 
@@ -1040,6 +1058,7 @@ private:
 
   #if ENABLED(FT_MOTION)
     static void M493();
+    static void M493_report(const bool forReplay=true);
   #endif
 
   static void M500();
@@ -1088,6 +1107,11 @@ private:
     static void M575();
   #endif
 
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    static void M592();
+    static void M592_report(const bool forReplay=true);
+  #endif
+
   #if HAS_ZV_SHAPING
     static void M593();
     static void M593_report(const bool forReplay=true);
@@ -1108,7 +1132,7 @@ private:
     static void M665_report(const bool forReplay=true);
   #endif
 
-  #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
+  #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
     static void M666();
     static void M666_report(const bool forReplay=true);
   #endif
@@ -1197,6 +1221,10 @@ private:
 
   #if HAS_MEDIA
     static void M928();
+  #endif
+
+  #if ENABLED(OTA_FIRMWARE_UPDATE)
+    static void M936();
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
