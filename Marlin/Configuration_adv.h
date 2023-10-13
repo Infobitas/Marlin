@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 02010200
+#define CONFIGURATION_ADV_H_VERSION 02010201
 
 
 
@@ -287,6 +287,15 @@
   #endif
 #endif
 
+//
+// SoC Sensor options
+//
+#if TEMP_SENSOR_SOC
+  #define THERMAL_PROTECTION_SOC     // Halt the printer if the SoC sensor leaves the temp range below.
+  #define SOC_MAXTEMP            85  // (°C)
+#endif
+
+
 /**
  * Thermal Protection provides additional protection to your printer from damage
  * and fire. Marlin always includes safe min and max temperature ranges which
@@ -307,10 +316,14 @@
   #define THERMAL_PROTECTION_PERIOD 90        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 10    // Degrees Celsius
 
-  //#define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops
-  #if ENABLED(ADAPTIVE_FAN_SLOWING) && EITHER(MPCTEMP, PIDTEMP)
-    //#define TEMP_TUNING_MAINTAIN_FAN        // Don't slow fan speed during M303 or M306 T
+  //#define ADAPTIVE_FAN_SLOWING              // Slow down the part-cooling fan if the temperature drops
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    //#define REPORT_ADAPTIVE_FAN_SLOWING     // Report fan slowing activity to the console
+    #if EITHER(MPCTEMP, PIDTEMP)
+      //#define TEMP_TUNING_MAINTAIN_FAN      // Don't slow down the fan speed during M303 or M306 T
+    #endif
   #endif
+
 
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
@@ -375,7 +388,12 @@
    * Thermal Protection Variance Monitor - EXPERIMENTAL.
    * Kill the machine on a stuck temperature sensor. Disable if you get false positives.
    */
-  //#define THERMAL_PROTECTION_VARIANCE_MONITOR   // Detect a sensor malfunction preventing temperature updates
+  //#define THERMAL_PROTECTION_VARIANCE_MONITOR
+  #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
+    // Variance detection window to override the THERMAL_PROTECTION...PERIOD settings above.
+    // Keep in mind that some heaters heat up faster than others.
+    //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD 30  // (s) Override all watch periods
+  #endif
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -557,6 +575,8 @@
   // Use TEMP_SENSOR_BOARD as a trigger for enabling the controller fan
   //#define CONTROLLER_FAN_MIN_BOARD_TEMP 40  // (°C) Turn on the fan if the board reaches this temperature
 
+  // Use TEMP_SENSOR_SOC as a trigger for enabling the controller fan
+  //#define CONTROLLER_FAN_MIN_SOC_TEMP 40  // (°C) Turn on the fan if the SoC reaches this temperature
   #define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     #define CONTROLLER_FAN_MENU           // Enable the Controller Fan submenu
@@ -633,6 +653,9 @@
  * Use one of the PWM fans as a redundant part-cooling fan
  */
 //#define REDUNDANT_PART_COOLING_FAN 2  // Index of the fan to sync with FAN 0.
+#ifdef REDUNDANT_PART_COOLING_FAN
+  //#define NUM_REDUNDANT_FANS 1        // Number of sequential fans to synchronize with Fan 0
+#endif
 
 // @section extruder
 
@@ -829,6 +852,7 @@
   //#define INVERT_X2_VS_X_DIR        // X2 direction signal is the opposite of X
   //#define X_DUAL_ENDSTOPS           // X2 has its own endstop
   #if ENABLED(X_DUAL_ENDSTOPS)
+    //#define X2_STOP_PIN X_MAX_PIN   // X2 endstop pin override
     #define X2_USE_ENDSTOP    _XMAX_  // X2 endstop board plug. Don't forget to enable USE_*_PLUG.
     #define X2_ENDSTOP_ADJUSTMENT  0  // X2 offset relative to X endstop
   #endif
@@ -838,6 +862,7 @@
   //#define INVERT_Y2_VS_Y_DIR        // Y2 direction signal is the opposite of Y
   //#define Y_DUAL_ENDSTOPS           // Y2 has its own endstop
   #if ENABLED(Y_DUAL_ENDSTOPS)
+    //#define Y2_STOP_PIN Y_MAX_PIN   // Y2 endstop pin override
     #define Y2_USE_ENDSTOP    _YMAX_  // Y2 endstop board plug. Don't forget to enable USE_*_PLUG.
     #define Y2_ENDSTOP_ADJUSTMENT  0  // Y2 offset relative to Y endstop
   #endif
@@ -851,6 +876,7 @@
 
   #define Z_MULTI_ENDSTOPS          // Other Z axes have their own endstops
   #if ENABLED(Z_MULTI_ENDSTOPS)
+    //#define Z2_STOP_PIN X_MAX_PIN   // Z2 endstop pin override  
     #if Z_HOME_DIR > 0
     #define Z2_USE_ENDSTOP          _ZMIN_
     #else
@@ -861,6 +887,7 @@
   #ifdef Z3_DRIVER_TYPE
     //#define INVERT_Z3_VS_Z_DIR      // Z3 direction signal is the opposite of Z
     #if ENABLED(Z_MULTI_ENDSTOPS)
+      //#define Z3_STOP_PIN Y_MAX_PIN // Z3 endstop pin override
       #define Z3_USE_ENDSTOP   _YMAX_ // Z3 endstop board plug. Don't forget to enable USE_*_PLUG.
       #define Z3_ENDSTOP_ADJUSTMENT 0 // Z3 offset relative to Z endstop
     #endif
@@ -868,6 +895,7 @@
   #ifdef Z4_DRIVER_TYPE
     //#define INVERT_Z4_VS_Z_DIR      // Z4 direction signal is the opposite of Z
     #if ENABLED(Z_MULTI_ENDSTOPS)
+      //#define Z4_STOP_PIN Z_MAX_PIN // Z4 endstop pin override
       #define Z4_USE_ENDSTOP   _ZMAX_ // Z4 endstop board plug. Don't forget to enable USE_*_PLUG.
       #define Z4_ENDSTOP_ADJUSTMENT 0 // Z4 offset relative to Z endstop
     #endif
@@ -971,6 +999,13 @@
    */
   //#define BLTOUCH_HS_MODE true
 
+  #ifdef BLTOUCH_HS_MODE
+    // The probe Z offset (M851 Z) is the height at which the probe triggers.
+    // This must be large enough to keep the probe pin off the bed and prevent
+    // it from snagging on the bed clips.
+    #define BLTOUCH_HS_EXTRA_CLEARANCE    7 // Extra Z Clearance
+  #endif
+  
   // Safety: Enable voltage mode settings in the LCD menu.
   //#define BLTOUCH_LCD_VOLTAGE_MENU
 
@@ -1074,6 +1109,51 @@
 #endif
 
 // @section motion
+/**
+ * Fixed-time-based Motion Control -- EXPERIMENTAL
+ * Enable/disable and set parameters with G-code M493.
+ */
+//#define FT_MOTION
+#if ENABLED(FT_MOTION)
+  #define FTM_DEFAULT_MODE        ftMotionMode_DISABLED // Default mode of fixed time control. (Enums in ft_types.h)
+  #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (Enums in ft_types.h)
+  #define FTM_SHAPING_DEFAULT_X_FREQ 37.0f              // (Hz) Default peak frequency used by input shapers.
+  #define FTM_SHAPING_DEFAULT_Y_FREQ 37.0f              // (Hz) Default peak frequency used by input shapers.
+  #define FTM_LINEAR_ADV_DEFAULT_ENA false              // Default linear advance enable (true) or disable (false).
+  #define FTM_LINEAR_ADV_DEFAULT_K    0.0f              // Default linear advance gain.
+  #define FTM_SHAPING_ZETA            0.1f              // Zeta used by input shapers.
+  #define FTM_SHAPING_V_TOL           0.05f             // Vibration tolerance used by EI input shapers.
+
+  /**
+   * Advanced configuration
+   */
+  #define FTM_BATCH_SIZE            100                 // Batch size for trajectory generation;
+                                                        // half the window size for Ulendo FBS.
+  #define FTM_FS                   1000                 // (Hz) Frequency for trajectory generation. (1 / FTM_TS)
+  #define FTM_TS                      0.001f            // (s) Time step for trajectory generation. (1 / FTM_FS)
+  #define FTM_STEPPER_FS          20000                 // (Hz) Frequency for stepper I/O update.
+  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps.
+  #define FTM_MIN_SHAPE_FREQ         10                 // Minimum shaping frequency.
+  #define FTM_ZMAX                  100                 // Maximum delays for shaping functions (even numbers only!).
+                                                        // Calculate as:
+                                                        //    1/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZV.
+                                                        //    (FTM_FS / FTM_MIN_SHAPE_FREQ) for ZVD, MZV.
+                                                        //    3/2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 2HEI.
+                                                        //    2 * (FTM_FS / FTM_MIN_SHAPE_FREQ) for 3HEI.
+  #define FTM_STEPS_PER_UNIT_TIME    20                 // Interpolated stepper commands per unit time.
+                                                        // Calculate as (FTM_STEPPER_FS / FTM_FS).
+  #define FTM_CTS_COMPARE_VAL        10                 // Comparison value used in interpolation algorithm.
+                                                        // Calculate as (FTM_STEPS_PER_UNIT_TIME / 2).
+  // These values may be configured to adjust duration of loop().
+  #define FTM_STEPS_PER_LOOP         60                 // Number of stepper commands to generate each loop().
+  #define FTM_POINTS_PER_LOOP       100                 // Number of trajectory points to generate each loop().
+
+  // This value may be configured to adjust duration to consume the command buffer.
+  // Try increasing this value if stepper motion is not smooth.
+  #define FTM_STEPPERCMD_BUFF_SIZE 1000                 // Size of the stepper command buffers.
+
+  //#define FT_MOTION_MENU                              // Provide a MarlinUI menu to set M493 parameters.
+#endif
 
 /**
  * Input Shaping -- EXPERIMENTAL
@@ -1118,6 +1198,8 @@
 //#define MULTI_NOZZLE_DUPLICATION
 
 // By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
+
+// By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
 #define INVERT_Z_STEP_PIN false
@@ -1142,7 +1224,6 @@
 #define DISABLE_INACTIVE_E true
 //Config version 02010300
 #define DISABLE_INACTIVE_EXTRUDER true
-
 
 // Default Minimum Feedrates for printing and travel moves
 #define DEFAULT_MINIMUMFEEDRATE             0.0     // (mm/s) Minimum feedrate. Set with M205 S.
@@ -1279,6 +1360,11 @@
     #define CALIBRATION_PIN_PULLUP
   #endif
 #endif
+/**
+ * Multi-stepping sends steps in bursts to reduce MCU usage for high step-rates.
+ * This allows higher feedrates than the MCU could otherwise support.
+ */
+#define MULTISTEPPING_LIMIT   16  //: [1, 2, 4, 8, 16, 32, 64, 128]
 
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
@@ -1441,10 +1527,12 @@
 
 #endif // HAS_MARLINUI_MENU
 
-#if HAS_DISPLAY
+#if ANY(HAS_DISPLAY, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
-
+#endif
+  //#define SHOW_BOOTSCREEN                 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
+#if EITHER(HAS_DISPLAY, DWIN_LCD_PROUI)
   // The timeout to return to the status screen from sub-menus
   //#define LCD_TIMEOUT_TO_STATUS 15000   // (ms)
 
@@ -1500,8 +1588,8 @@
 
 // Add 'M73' to set print job progress, overrides Marlin's built-in estimate
 #define SET_PROGRESS_MANUALLY
-#if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
-  #define SET_PROGRESS_PERCENT          // Add 'P' parameter to set percentage done
+#if ENABLED(SET_PROGRESS_MANUALLY)
+  #define SET_PROGRESS_PERCENT            // Add 'P' parameter to set percentage done
   #define SET_REMAINING_TIME              // Add 'R' parameter to set remaining time
   //#define SET_INTERACTION_TIME          // Add 'C' parameter to set time until next filament change or other user interaction
   #define M73_REPORT                    // Report M73 values to host
@@ -1510,19 +1598,13 @@
   #endif
 #endif
 
+
 // LCD Print Progress options. Multiple times may be displayed in turn.
 
-#if HAS_DISPLAY && EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)  
-  #if CAN_SHOW_REMAINING_TIME
-    #define SHOW_REMAINING_TIME             // Display estimated time to completion
-    #define SHOW_PROGRESS_PERCENT           // Show print progress percentage (doesn't affect progress bar)
-    #define SHOW_ELAPSED_TIME               // Display elapsed printing time (prefix 'E')
-    #if ENABLED(SHOW_REMAINING_TIME)
-      //#define USE_M73_REMAINING_TIME    // Use remaining time from M73 command instead of estimation
-      #define ROTATE_PROGRESS_DISPLAY   // Display (P)rogress, (E)lapsed, and (R)emaining time
-    #endif
-  #endif
-
+#if HAS_DISPLAY && EITHER(SDSUPPORT, SET_PROGRESS_MANUALLY)
+  #define SHOW_PROGRESS_PERCENT           // Show print progress percentage (doesn't affect progress bar)
+  #define SHOW_ELAPSED_TIME               // Display elapsed printing time (prefix 'E')
+  //#define SHOW_REMAINING_TIME           // Display estimated time to completion (prefix 'R')
   #if ENABLED(SET_INTERACTION_TIME)
     #define SHOW_INTERACTION_TIME         // Display time until next user interaction ('C' = filament change)
   #endif
@@ -1539,6 +1621,7 @@
     #endif
   #endif
 #endif
+
 
 #if ENABLED(SDSUPPORT)
   /**
@@ -1646,10 +1729,10 @@
     #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
     #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
     #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 G-code.
-    #define SDSORT_USES_RAM    true   // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_RAM    false   // Pre-allocate a static array for faster pre-sorting.
     #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES true   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM true   // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+    #define SDSORT_CACHE_NAMES false   // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM false   // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
     #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
                                       // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
   #endif
@@ -1788,7 +1871,7 @@
     #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
   #endif
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 /**
  * By default an onboard SD card reader may be shared as a USB mass-
@@ -1796,14 +1879,7 @@
  */
 //#define NO_SD_HOST_DRIVE   // Disable SD Card access over USB (for security).
 
-/**
- * By default the framework is responsible for the shared media I/O.
- * Enable this if you need Marlin to take care of the shared media I/O.
- * Useful if shared media isn't working properly on some boards.
- */
-#if ENABLED(SDSUPPORT) && DISABLED(NO_SD_HOST_DRIVE)
-  //#define DISKIO_HOST_DRIVE
-#endif
+
 
 /**
  * Additional options for Graphical Displays
@@ -1882,7 +1958,6 @@
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
-  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~3260 (or ~940) bytes of flash.
 
   // Frivolous Game Options
   //#define MARLIN_BRICKOUT
@@ -1909,11 +1984,11 @@
 
   #define DGUS_UPDATE_INTERVAL_MS  500    // (ms) Interval between automatic screen updates
 
-  #if DGUS_UI_IS(FYSETC, MKS, HIPRECY)
+  #if ANY(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_MKS, DGUS_LCD_UI_HIPRECY)
     #define DGUS_PRINT_FILENAME           // Display the filename during printing
     #define DGUS_PREHEAT_UI               // Display a preheat screen during heatup
 
-    #if DGUS_UI_IS(FYSETC, MKS)
+    #if EITHER(DGUS_LCD_UI_FYSETC, DGUS_LCD_UI_MKS)
       //#define DGUS_UI_MOVE_DIS_OPTION   // Disabled by default for FYSETC and MKS
     #else
       #define DGUS_UI_MOVE_DIS_OPTION     // Enabled by default for UI_HIPRECY
@@ -1961,7 +2036,7 @@
 //
 // Specify additional languages for the UI. Default specified by LCD_LANGUAGE.
 //
-#if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
+#if ANY(DOGLCD, TFT_COLOR_UI, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI, ANYCUBIC_LCD_VYPER)
   //#define LCD_LANGUAGE_2 fr
   //#define LCD_LANGUAGE_3 de
   //#define LCD_LANGUAGE_4 es
@@ -2063,17 +2138,14 @@
 // Classic UI Options
 //
 #if TFT_SCALED_DOGLCD
-  // Change colors
-  // some colors are predefined, see /src/lcd/dogm/u8g_dev_tft_480~.cpp Line 160
-  // or use 16bit color (e.g. 0x0000 = black, 0xFFE0 = yellow)
-  // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
-  #define TFT_MARLINUI_COLOR COLOR_WHITE  // main foreground color
-  #define TFT_MARLINBG_COLOR COLOR_BLACK  // background color
+  //#define TFT_MARLINUI_COLOR 0xFFFF // White
+  //#define TFT_MARLINBG_COLOR 0x0000 // Black
   //#define TFT_DISABLED_COLOR 0x0003 // Almost black
-  #define TFT_BTCANCEL_COLOR COLOR_RED    // cancel button
-  #define TFT_BTARROWS_COLOR COLOR_WHITE  // arrows up/down
-  #define TFT_BTOKMENU_COLOR COLOR_GREEN  // enter button
+  //#define TFT_BTCANCEL_COLOR 0xF800 // Red
+  //#define TFT_BTARROWS_COLOR 0xDEE6 // 11011 110111 00110 Yellow
+  //#define TFT_BTOKMENU_COLOR 0x145F // 00010 100010 11111 Cyan
 #endif
+
 
 //
 // ADC Button Debounce
@@ -2157,7 +2229,7 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   #if ENABLED(DISTINCT_E_FACTORS)
     #define ADVANCE_K { 0.22 }    // (mm) Compression length per 1mm/s extruder speed, per extruder
@@ -2435,6 +2507,7 @@
   #define BLOCK_BUFFER_SIZE 16
 #endif
 
+
 // @section serial
 
 // The ASCII buffer for serial input
@@ -2598,6 +2671,13 @@
   //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 A0" // Extra G-code to run while executing tool-change command T0
   //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
   //#define EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN        // Always execute above G-code sequences. Use with caution!
+  /**
+   * Consider coordinates for EVENT_GCODE_TOOLCHANGE_Tx as relative to T0
+   * so that moves in the specified axes are the same for all tools.
+   */
+  //#define TC_GCODE_USE_GLOBAL_X   // Use X position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Y   // Use Y position relative to Tool 0
+  //#define TC_GCODE_USE_GLOBAL_Z   // Use Z position relative to Tool 0
 
   /**
    * Tool Sensors detect when tools have been picked up or dropped.
@@ -2987,6 +3067,7 @@
     //#define Z4_HOLD_MULTIPLIER 0.5
   #endif
 
+
   #if AXIS_IS_TMC_CONFIG(I)
     #define I_CURRENT      800
     #define I_CURRENT_HOME I_CURRENT
@@ -3118,6 +3199,8 @@
     //#define E7_INTERPOLATE true
     //#define E7_HOLD_MULTIPLIER 0.5
   #endif
+
+
 
   // @section tmc/spi
 
@@ -3384,7 +3467,7 @@
    * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
-  #define SQUARE_WAVE_STEPPING
+  //#define EDGE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
@@ -3805,6 +3888,9 @@
  * Auto-report position with M154 S<seconds>
  */
 //#define AUTO_REPORT_POSITION
+#if ENABLED(AUTO_REPORT_POSITION)
+  //#define AUTO_REPORT_REAL_POSITION // Auto-report the real position
+#endif
 
 /**
  * Include capabilities in M115 output
@@ -3903,7 +3989,7 @@
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
 #endif
-//#define G0_ANGULAR_FEEDRATE 2700 // (°/min)
+
 
 // @section gcode
 

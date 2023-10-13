@@ -35,7 +35,7 @@
  *
  * Advanced settings can be found in Configuration_adv.h
  */
-#define CONFIGURATION_H_VERSION 02010200
+#define CONFIGURATION_H_VERSION 02010201
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -324,6 +324,23 @@
 //#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
 //#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
 
+// @section multi-material
+
+/**
+ * Multi-Material Unit
+ * Set to one of these predefined models:
+ *
+ *   PRUSA_MMU1           : Průša MMU1 (The "multiplexer" version)
+ *   PRUSA_MMU2           : Průša MMU2
+ *   PRUSA_MMU2S          : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
+ *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *
+ * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
+ * See additional options in Configuration_adv.h.
+ * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+ */
+//#define MMU_MODEL PRUSA_MMU2
 // @section psu control
 
 /**
@@ -841,7 +858,7 @@
   #endif
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define PRINTABLE_RADIUS       140.0    // (mm)
+  #define DELTA_PRINTABLE_RADIUS 140.0    // (mm)
 
   // Maximum reachable area
   #define DELTA_MAX_RADIUS       140.0    // (mm)
@@ -895,7 +912,7 @@
   #if ENABLED(MORGAN_SCARA)
 
     //#define DEBUG_SCARA_KINEMATICS
-    #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
+    #define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
 
     // Radius around the center where the arm cannot reach
     #define MIDDLE_DEAD_ZONE_R   0  // (mm)
@@ -930,7 +947,7 @@
   #define TPARA_OFFSET_Y    0       // (mm)
   #define TPARA_OFFSET_Z    0       // (mm)
 
-  #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
+  #define SCARA_FEEDRATE_SCALING  // Convert XY feedrate from mm/s to degrees/s on the fly
 
   // Radius around the center where the arm cannot reach
   #define MIDDLE_DEAD_ZONE_R   0  // (mm)
@@ -938,59 +955,6 @@
   // Calculated from Calibration Guide and M360 / M114. See http://reprap.harleystudio.co.za/?page_id=1073
   #define THETA_HOMING_OFFSET  0
   #define PSI_HOMING_OFFSET    0
-#endif
-
-// @section polar
-
-/**
- * POLAR Kinematics
- *  developed by Kadir ilkimen for PolarBear CNC and babyBear
- *  https://github.com/kadirilkimen/Polar-Bear-Cnc-Machine
- *  https://github.com/kadirilkimen/babyBear-3D-printer
- *
- * A polar machine can have different configurations.
- * This kinematics is only compatible with the following configuration:
- *        X : Independent linear
- *   Y or B : Polar
- *        Z : Independent linear
- *
- * For example, PolarBear has CoreXZ plus Polar Y or B.
- *
- * Motion problem for Polar axis near center / origin:
- *
- * 3D printing:
- * Movements very close to the center of the polar axis take more time than others.
- * This brief delay results in more material deposition due to the pressure in the nozzle.
- *
- * Current Kinematics and feedrate scaling deals with this by making the movement as fast
- * as possible. It works for slow movements but doesn't work well with fast ones. A more
- * complicated extrusion compensation must be implemented.
- *
- * Ideally, it should estimate that a long rotation near the center is ahead and will cause
- * unwanted deposition. Therefore it can compensate the extrusion beforehand.
- *
- * Laser cutting:
- * Same thing would be a problem for laser engraving too. As it spends time rotating at the
- * center point, more likely it will burn more material than it should. Therefore similar
- * compensation would be implemented for laser-cutting operations.
- *
- * Milling:
- * This shouldn't be a problem for cutting/milling operations.
- */
-//#define POLAR
-#if ENABLED(POLAR)
-  #define DEFAULT_SEGMENTS_PER_SECOND 180   // If movement is choppy try lowering this value
-  #define PRINTABLE_RADIUS 82.0f            // (mm) Maximum travel of X axis
-
-  // Movements fall inside POLAR_FAST_RADIUS are assigned the highest possible feedrate
-  // to compensate unwanted deposition related to the near-origin motion problem.
-  #define POLAR_FAST_RADIUS 3.0f            // (mm)
-
-  // Radius which is unreachable by the tool.
-  // Needed if the tool is not perfectly aligned to the center of the polar axis.
-  #define POLAR_CENTER_OFFSET 0.0f          // (mm)
-
-  #define FEEDRATE_SCALING                  // Convert XY feedrate from mm/s to degrees/s on the fly
 #endif
 
 // @section machine
@@ -1099,7 +1063,7 @@
  * Override with M92
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {  160.0, 160.0, 800.0, 800.0 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {  160.0, 160.0, 800.0, 825.0 }
 
 
 /**
@@ -1349,14 +1313,15 @@
   // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
   // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_1 { 30.0, PRINTABLE_RADIUS, 100.0 }
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1 { 30.0, DELTA_PRINTABLE_RADIUS, 100.0 }
   #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_PROBE_FEEDRATE
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_2 { 0.0, PRINTABLE_RADIUS, 100.0 }
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2 { 0.0, DELTA_PRINTABLE_RADIUS, 100.0 }
   #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_FEEDRATE)/10
 
-  #define Z_PROBE_ALLEN_KEY_DEPLOY_3 { 0.0, (PRINTABLE_RADIUS) * 0.75, 100.0 }
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3 { 0.0, (DELTA_PRINTABLE_RADIUS) * 0.75, 100.0 }
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_FEEDRATE
+
 
   #define Z_PROBE_ALLEN_KEY_STOW_1 { -64.0, 56.0, 23.0 } // Move the probe into position
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_FEEDRATE
@@ -2019,7 +1984,7 @@
   #define XY_SIDE_AD 200
 
   // Or, set the XY skew factor directly:
-  #define XY_SKEW_FACTOR 0.0
+  //#define XY_SKEW_FACTOR 0.0
 
   //#define SKEW_CORRECTION_FOR_Z
   #if ENABLED(SKEW_CORRECTION_FOR_Z)
@@ -2346,7 +2311,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-#define SD_CHECK_AND_RETRY
+//#define SD_CHECK_AND_RETRY
 
 /**
  * LCD Menu Items
@@ -2860,9 +2825,10 @@
 //#define DGUS_LCD_UI_MKS
 //#define DGUS_LCD_UI_RELOADED
 /*
-#if DGUS_UI_IS(MKS)
+#if ENABLED(DGUS_LCD_UI_MKS)
   #define USE_MKS_GREEN_UI
 #endif
+
 */
 //
 // CR-6 OEM touch screen. A DWIN display with touch.
@@ -2968,14 +2934,6 @@
 //#define TFT_LVGL_UI
 
 #if ENABLED(TFT_COLOR_UI)
-  /**
-   * TFT Font for Color_UI. Choose one of the following:
-   *
-   * NOTOSANS  - Default font with antialiasing. Supports Latin Extended and non-Latin characters.
-   * UNIFONT   - Lightweight font, no antialiasing. Supports Latin Extended and non-Latin characters.
-   * HELVETICA - Lightweight font, no antialiasing. Supports Basic Latin (0x0020-0x007F) and Latin-1 Supplement (0x0080-0x00FF) characters only.
-   */
-  #define TFT_FONT  NOTOSANS
 
   //#define TFT_SHARED_SPI   // SPI is shared between TFT display and other devices. Disable async data transfer
 #endif
