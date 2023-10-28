@@ -173,3 +173,4 @@ __pycache__
 .vscode/extensions.json
 update/fmw_tronxy.bin
 update/fmw_tronxy.bin
+*.bin
