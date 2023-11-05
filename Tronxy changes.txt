@@ -1,0 +1,13 @@
+ini/stm32f4.ini {[env:STM32F446_tronxy]}
+
+platformio.ini
+
+buildroot/share/PlatformIO/scripts/tronxy_scrypt.py
+buildroot/share/PlatformIO/variants/MARLIN_F446Zx_TRONXY/hal_conf_custom.h
+buildroot/share/PlatformIO/variants/MARLIN_F446Zx_TRONXY/variant.cpp
+buildroot/share/PlatformIO/variants/MARLIN_F446Zx_TRONXY/variant.h
+
+Marlin/src/HAL/STM32/tft/tft_fsmc.cpp
+Marlin/src/HAL/STM32/tft/tft_fsmc.h
+
+Marlin/src/pins/stm32f4/pins_TRONXY_V10.h
