@@ -39,8 +39,8 @@
 //
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
-  //#define EEPROM_AT24CXX
-  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_AT24CXX
+  //#define FLASH_EEPROM_EMULATION
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -137,15 +137,15 @@
 //
 #define TEMP_0_PIN                          PC3   // TH1
 #define TEMP_1_PIN                          PC0   // TH2
-#define TEMP_BED_PIN                        PC2   // TB1
+
 
 #define HEATER_0_PIN                        PG7   // HEATER1
 #define HEATER_1_PIN                        PA15 // HEATER2
 
 #define HEATER_BED_PIN                      PE2   // HOT BED
+#define TEMP_BED_PIN                        PC2   // TB1
   
 //#define HEATER_BED_INVERTING              true
-
 
 //
 // Laser / Spindle
@@ -282,8 +282,8 @@
 // SD Card
 //
 #define SDIO_SUPPORT
-#define ONBOARD_SDIO
-#define SD_DETECT_PIN                       PF0   // PF0, but not connected
+//#define ONBOARD_SDIO
+#define SD_DETECT_PIN                         -1   // PF0, but not connected
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
 
