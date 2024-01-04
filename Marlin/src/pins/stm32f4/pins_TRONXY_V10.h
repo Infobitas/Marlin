@@ -39,8 +39,8 @@
 //
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
-  #define EEPROM_AT24CXX
-  //#define FLASH_EEPROM_EMULATION
+  //#define EEPROM_AT24CXX
+  #define FLASH_EEPROM_EMULATION
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -282,7 +282,7 @@
 // SD Card
 //
 #define SDIO_SUPPORT
-//#define ONBOARD_SDIO
+#define ONBOARD_SDIO
 #define SD_DETECT_PIN                         -1   // PF0, but not connected
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
