@@ -1946,6 +1946,9 @@
   //#define DISKIO_HOST_DRIVE
 #endif
 
+//BUG FIX https://github.com/MarlinFirmware/Marlin/issues/26566
+#define DISPLAY_SLEEP_MINUTES 0  // (minutes) Timeout before turning off the screen. Set with M255 S.
+
 /**
  * Additional options for Graphical Displays
  *
@@ -2238,7 +2241,7 @@
 // LCD Backlight Timeout
 // Requires a display with a controllable backlight
 //
-//#define LCD_BACKLIGHT_TIMEOUT_MINS 1  // (minutes) Timeout before turning off the backlight
+//#define LCD_BACKLIGHT_TIMEOUT_MINS 0  // (minutes) Timeout before turning off the backlight
 #if defined(DISPLAY_SLEEP_MINUTES) || defined(LCD_BACKLIGHT_TIMEOUT_MINS)
   #define EDITABLE_DISPLAY_TIMEOUT      // Edit timeout with M255 S<minutes> and a menu item
 #endif
