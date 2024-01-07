@@ -11,3 +11,10 @@ Marlin/src/HAL/STM32/tft/tft_fsmc.cpp
 Marlin/src/HAL/STM32/tft/tft_fsmc.h
 
 Marlin/src/pins/stm32f4/pins_TRONXY_V10.h
+
+
+
+--------------
+LCD ui paieska
+D:\Projects\VersionControl\Marlin\Tronxy\Marlin\src\lcd\TFTGLCD\marlinui_TFTGLCD.h
+

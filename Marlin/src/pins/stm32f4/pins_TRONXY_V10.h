@@ -37,7 +37,7 @@
 
 // EEPROM
 //
-#if NO_EEPROM_SELECTED
+#if NO_EEPROM_SELECTED 
   #undef NO_EEPROM_SELECTED
   //#define EEPROM_AT24CXX
   #define FLASH_EEPROM_EMULATION
@@ -113,16 +113,6 @@
 #define Z_STEP_PIN                          PA6
 #define Z_DIR_PIN                           PF15
 
-#if defined(Z2_DRIVER_TYPE)
-  #define Z2_ENABLE_PIN                       PF7
-  #define Z2_STEP_PIN                         PF6
-  #define Z2_DIR_PIN                          PF4
-#elif EXTRUDERS > 2
-  #define E2_ENABLE_PIN                       PF7
-  #define E2_STEP_PIN                         PF6
-  #define E2_DIR_PIN                          PF4
-#endif
-
 #define E0_ENABLE_PIN                       PF14
 #define E0_STEP_PIN                         PB1
 #define E0_DIR_PIN                          PF13
@@ -130,6 +120,10 @@
 #define E1_ENABLE_PIN                       PG5
 #define E1_STEP_PIN                         PD12
 #define E1_DIR_PIN                          PG4
+
+#define E2_ENABLE_PIN                       PF7
+#define E2_STEP_PIN                         PF6
+#define E2_DIR_PIN                          PF4
 
 
 //
@@ -147,6 +141,19 @@
   
 //#define HEATER_BED_INVERTING              true
 
+
+//
+// Fans
+//
+#define CONTROLLER_FAN_PIN                  PD7 // BOARD FAN
+#define FAN0_PIN                            PG0   // FAN0
+#define FAN1_PIN                            PB6 //FAN1
+#define THROAT_FAN                          2
+#define FAN2_PIN                            PG9 //FAN2 - hotend
+#define FAN3_PIN                            PF10//FAN3
+#define FAN_SOFT_PWM_REQUIRED
+
+
 //
 // Laser / Spindle
 //
@@ -159,16 +166,7 @@
   #endif
 #endif
 
-//
-// Fans
-//
-#define CONTROLLER_FAN_PIN                  PD7 // BOARD FAN
-#define FAN0_PIN                            PG0   // FAN0
-#define FAN1_PIN                            PB6 //FAN1
-#define THROAT_FAN                          2
-#define FAN2_PIN                            PG9 //FAN2 - hotend
-#define FAN3_PIN                            PF10//FAN3
-//#define FAN_SOFT_PWM
+
 
 
 // Misc
