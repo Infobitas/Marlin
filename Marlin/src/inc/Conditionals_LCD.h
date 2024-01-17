@@ -559,8 +559,10 @@
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
 
 // Support for SD Card and other file storage
-#if ENABLED(SDSUPPORT)
-  #define HAS_MEDIA 1
+#if ENABLED(SDSUPPORT) 
+  #if DISABLED(HAS_MEDIA)
+	#define HAS_MEDIA 1
+  #endif
 #endif
 
 /**
