@@ -173,3 +173,4 @@ __pycache__
 *_log.csv
 *.bin
 *.bin
+update/fmw_tronxy.bin
