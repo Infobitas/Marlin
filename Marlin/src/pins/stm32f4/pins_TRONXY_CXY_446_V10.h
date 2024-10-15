@@ -44,9 +44,11 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define I2C_EEPROM
+  //#undef NO_EEPROM_SELECTED
+  //#define I2C_EEPROM
+  //#define EEPROM_AT24CXX
   //#define FLASH_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
+  //#define SDCARD_EEPROM_EMULATION
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -54,25 +56,32 @@
   #define EEPROM_PAGE_SIZE                    (0x800U)  // 2K, but will use 2x more (4K)
   #define MARLIN_EEPROM_SIZE                  EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE                  0x800  // 2K (FT24C16A)
+  #if ENABLED(EEPROM_AT24CXX)
+    #define AT24CXX_SCL                     PB8
+    #define AT24CXX_SDA                     PB9
+    #define AT24CXX_WP                      PB7
+  #endif
+  #define MARLIN_EEPROM_SIZE                  0x1000  // 2K (FT24C16A)
 #endif
 
 //
 // SPI Flash
 //
-#define SPI_FLASH                                 // W25Q16
+#define SPI_FLASH                                 
 #if ENABLED(SPI_FLASH)
-  #define SPI_FLASH_SIZE                      0x1000000  // 16MB
+  #define SPI_FLASH_SIZE                    0x200000  // 2MB
   #define SPI_FLASH_CS_PIN                  PG15
   #define SPI_FLASH_MOSI_PIN                PB5
   #define SPI_FLASH_MISO_PIN                PB4
   #define SPI_FLASH_SCK_PIN                 PB3
 #endif
 
-//
-// SD Card / Flash Drive
-//
-#define HAS_OTG_USB_HOST_SUPPORT  // USB Flash Drive Support
+// SPI 2
+#define W25QXX_CS_PIN                       PG15
+#define W25QXX_MOSI_PIN                     PB5
+#define W25QXX_MISO_PIN                     PB4
+#define W25QXX_SCK_PIN                      PB3
+
 
 //
 // SD Card
@@ -88,6 +97,8 @@
 #define SDIO_D3_PIN                         PC11
 #define SDIO_CK_PIN                         PC12
 #define SDIO_CMD_PIN                        PD2
+
+#define HAS_OTG_USB_HOST_SUPPORT  // USB Flash Drive Support
 
 //
 // Limit Switches
@@ -108,6 +119,7 @@
   #define FIL_RUNOUT_PIN                    PE6
   #define FIL_RUNOUT2_PIN                   PF12
 #endif
+
 
 //
 // Steppers
@@ -132,6 +144,7 @@
 #define E1_STEP_PIN                         PD12
 #define E1_DIR_PIN                          PG4
 
+
 //
 // Temperature Sensors
 //
@@ -153,6 +166,7 @@
 
 #define FAN0_PIN                            PG0   // Part Cooling Fan #1
 #define FAN1_PIN                            PB6   // Part Cooling Fan #2
+#define THROAT_FAN                          2
 #define FAN2_PIN                            PG9   // Extruder/Hotend #1 Heatsink Fan
 #define FAN3_PIN                            PF10  // Extruder/Hotend #2 Heatsink Fan
 #define CONTROLLER_FAN_PIN                  PD7
@@ -163,10 +177,7 @@
 #define SPINDLE_LASER_ENA_PIN               PB11  // WiFi Module TXD (Pin5)
 #define SPINDLE_LASER_PWM_PIN               PB10  // WiFi Module RXD (Pin4)
 
-//
-// NOTE: The PWM pin definition const PinMap PinMap_PWM[] in PeripheralPins.c must be augmented here.
-// See PWM_PIN(x) definition for details.
-//
+
 
 //
 // TFT with FSMC interface
@@ -182,11 +193,15 @@
 
   #define TFT_RESET_PIN                     PB12
   #define TFT_BACKLIGHT_PIN                 PG8
+  #define LCD_BACKLIGHT_PIN                 PG8 //for Marlin UI support
 
   #define TOUCH_CS_PIN                      PD11
   #define TOUCH_SCK_PIN                     PB13
   #define TOUCH_MISO_PIN                    PB14
   #define TOUCH_MOSI_PIN                    PB15
+
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL                  DMA_CH5  
 
   #if ENABLED(TFT_LVGL_UI)
     #define HAS_SPI_FLASH_FONT                    1
@@ -202,17 +217,23 @@
 
   // Touch Screen calibration
   #if ENABLED(TFT_TRONXY_X5SA)
+
+    #define XPT2046_X_CALIBRATION            11166
+    #define XPT2046_Y_CALIBRATION            10346
+    #define XPT2046_X_OFFSET                   -10
+    #define XPT2046_Y_OFFSET                   -16  
+
     #ifndef TOUCH_CALIBRATION_X
-      #define TOUCH_CALIBRATION_X         -17181
+      #define TOUCH_CALIBRATION_X         -17384
     #endif
     #ifndef TOUCH_CALIBRATION_Y
-      #define TOUCH_CALIBRATION_Y          11434
+      #define TOUCH_CALIBRATION_Y          11907
     #endif
     #ifndef TOUCH_OFFSET_X
-      #define TOUCH_OFFSET_X                 501
+      #define TOUCH_OFFSET_X                 502
     #endif
     #ifndef TOUCH_OFFSET_Y
-      #define TOUCH_OFFSET_Y                  -9
+      #define TOUCH_OFFSET_Y                 -20
     #endif
     #ifndef TOUCH_ORIENTATION
       #define TOUCH_ORIENTATION  TOUCH_LANDSCAPE
@@ -239,6 +260,11 @@
 #else
   #error "TRONXY CXY 446 V10 only supports TFT with FSMC interface."
 #endif
+
+
+#define AT24CXX_SCL                         PB8
+#define AT24CXX_SDA                         PB9
+#define AT24CXX_WP                          PB7
 
 //
 // Power Loss

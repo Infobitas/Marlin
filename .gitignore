@@ -175,3 +175,5 @@ __pycache__
 *.bin
 *.bin
 update/fmw_tronxy.bin
+update/update.lnk
+update/Path.txt

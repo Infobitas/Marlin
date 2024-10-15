@@ -1783,7 +1783,7 @@
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
   // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
-  #define FILAMENT_RUNOUT_SCRIPT "M600"
+  #define FILAMENT_RUNOUT_SCRIPT "M25"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
@@ -1871,8 +1871,8 @@
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-#define RESTORE_LEVELING_AFTER_G28
-//#define ENABLE_LEVELING_AFTER_G28
+//#define RESTORE_LEVELING_AFTER_G28
+#define ENABLE_LEVELING_AFTER_G28
 
 /**
  * Auto-leveling needs preheating
@@ -2025,7 +2025,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#define LCD_BED_LEVELING
+//#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
@@ -2746,8 +2746,8 @@ IIC_BL24CXX_EEPROM
  *   root of your SD card, together with the compiled firmware.
  */
 //#define TFT_CLASSIC_UI
-#define TFT_COLOR_UI
-//#define TFT_LVGL_UI
+//#define TFT_COLOR_UI
+#define TFT_LVGL_UI
 
 #if ENABLED(TFT_COLOR_UI)
   /**
@@ -2810,7 +2810,7 @@ IIC_BL24CXX_EEPROM
   #define BUTTON_DELAY_MENU     250 // (ms) Button repeat delay for menus
 
   //#define DISABLE_ENCODER         // Disable the click encoder, if any
-  #define DISPLAY_SLEEP_MINUTES 5 // (minutes) Display Sleep after a period of inactivity. Set with M255 S.
+  //#define DISPLAY_SLEEP_MINUTES 5 // (minutes) Display Sleep after a period of inactivity. Set with M255 S.
 
   #define TOUCH_SCREEN_CALIBRATION //command M995 for manual calibration
 
