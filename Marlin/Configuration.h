@@ -2502,9 +2502,9 @@ IIC_BL24CXX_EEPROM
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
-#define SDSUPPORT
+//#define SDSUPPORT
 #define HAS_MEDIA 1
-
+ 
 
 /**
  * SD CARD: ENABLE CRC
