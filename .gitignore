@@ -172,8 +172,27 @@ __pycache__
 
 # IOLogger logs
 *_log.csv
+<<<<<<< HEAD
 *.bin
 *.bin
 update/fmw_tronxy.bin
 update/update.lnk
 update/Path.txt
+=======
+
+# Misc.
+*~
+*.orig
+*.rej
+*.bak
+*.idea
+*.i
+*.ii
+*.swp
+tags
+*.logs
+*.bak
+.aider*
+!.aiderignore
+.env
+>>>>>>> upstream/bugfix-2.1.x
